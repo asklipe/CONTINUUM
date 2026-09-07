@@ -7,6 +7,7 @@ because they demand different responses:
 ``CHANGED``    the resource is verifiably different
 ``UNKNOWN``    we could not tell
 
+
 ``UNKNOWN`` is not a softer ``UNCHANGED``. A resource that could not be
 inspected — an API that timed out, a file that is now unreadable — must not be
 treated as intact just because nothing contradicted it. Recovery downgrades on

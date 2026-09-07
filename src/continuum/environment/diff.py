@@ -30,7 +30,7 @@ class ResourceChange(StrEnum):
     """Describe how a resource differs between two environment snapshots."""
 
     UNCHANGED = "unchanged"
-    CHANGED = "changed"
+    CHANGED = "changed" 
     ADDED = "added"
     REMOVED = "removed"
     UNKNOWN = "unknown"

@@ -88,12 +88,12 @@ class EnvironmentDiff(BaseModel):
 
     @property
     def breaking(self) -> tuple[ResourceDelta, ...]:
-        """Deltas that may invalidate dependent state."""
+        """Return deltas that may invalidate dependent state."""
         return tuple(d for d in self.deltas if d.breaking)
 
     @property
     def stable(self) -> bool:
-        """True only when every resource was verified unchanged or newly added."""
+        """Return whether every resource was verified unchanged or newly added."""
         return not self.breaking
 
     def for_resource(self, name: str) -> ResourceDelta | None:
@@ -108,10 +108,7 @@ class EnvironmentDiff(BaseModel):
             d for d in self.deltas if d.change is not ResourceChange.UNCHANGED
         ]
         if not interesting:
-            return (
-                f"Environment unchanged "
-                f"({len(self.deltas)} resources verified)."
-            )
+            return f"Environment unchanged ({len(self.deltas)} resources verified)."
         return "\n".join(f"  {d.render()}" for d in interesting)
 
 

@@ -31,7 +31,7 @@ class ResourceChange(StrEnum):
 
     UNCHANGED = "unchanged"
     CHANGED = "changed" 
-    ADDED = "added"
+    ADDED = "added" 
     REMOVED = "removed"
     UNKNOWN = "unknown"
 

@@ -27,6 +27,8 @@ __all__ = ["ResourceChange", "ResourceDelta", "EnvironmentDiff", "diff_environme
 
 
 class ResourceChange(StrEnum):
+    """Describe how a resource differs between two environment snapshots."""
+
     UNCHANGED = "unchanged"
     CHANGED = "changed"
     ADDED = "added"
@@ -35,6 +37,8 @@ class ResourceChange(StrEnum):
 
 
 class ResourceDelta(BaseModel):
+    """Represent the observed change to a single environment resource."""
+
     model_config = ConfigDict(frozen=True, extra="forbid")
 
     resource: str
@@ -53,6 +57,7 @@ class ResourceDelta(BaseModel):
         )
 
     def render(self) -> str:
+        """Return a human-readable description of this resource change."""
         if self.change is ResourceChange.CHANGED:
             return f"{self.resource}: {self.before} -> {self.after}"
         if self.change is ResourceChange.REMOVED:
@@ -65,16 +70,20 @@ class ResourceDelta(BaseModel):
 
 
 class EnvironmentDiff(BaseModel):
+    """Collect resource-level differences between environment snapshots."""
+
     model_config = ConfigDict(frozen=True, extra="forbid")
 
     deltas: list[ResourceDelta] = Field(default_factory=list)
 
     @property
     def changed(self) -> tuple[ResourceDelta, ...]:
+        """Return resources whose verified state changed."""
         return tuple(d for d in self.deltas if d.change is ResourceChange.CHANGED)
 
     @property
     def unknown(self) -> tuple[ResourceDelta, ...]:
+        """Return resources whose state could not be verified."""
         return tuple(d for d in self.deltas if d.change is ResourceChange.UNKNOWN)
 
     @property
@@ -88,14 +97,21 @@ class EnvironmentDiff(BaseModel):
         return not self.breaking
 
     def for_resource(self, name: str) -> ResourceDelta | None:
+        """Return the delta for a named resource, if one exists."""
         return next((d for d in self.deltas if d.resource == name), None)
 
     def render(self) -> str:
+        """Return a human-readable summary of the environment differences."""
         if not self.deltas:
             return "No environment data to compare."
-        interesting = [d for d in self.deltas if d.change is not ResourceChange.UNCHANGED]
+        interesting = [
+            d for d in self.deltas if d.change is not ResourceChange.UNCHANGED
+        ]
         if not interesting:
-            return f"Environment unchanged ({len(self.deltas)} resources verified)."
+            return (
+                f"Environment unchanged "
+                f"({len(self.deltas)} resources verified)."
+            )
         return "\n".join(f"  {d.render()}" for d in interesting)
 
 
@@ -184,11 +200,21 @@ def diff_environments(
 
         if was == now:
             deltas.append(
-                ResourceDelta(resource=name, change=ResourceChange.UNCHANGED, before=was, after=now)
+                ResourceDelta(
+                    resource=name,
+                    change=ResourceChange.UNCHANGED,
+                    before=was,
+                    after=now,
+                )
             )
         else:
             deltas.append(
-                ResourceDelta(resource=name, change=ResourceChange.CHANGED, before=was, after=now)
+                ResourceDelta(
+                    resource=name,
+                    change=ResourceChange.CHANGED,
+                    before=was,
+                    after=now,
+                )
             )
 
     return EnvironmentDiff(deltas=deltas)
